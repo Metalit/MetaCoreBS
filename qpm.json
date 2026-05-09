@@ -1,0 +1,111 @@
+{
+  "$schema": "https://raw.githubusercontent.com/QuestPackageManager/QPM.Package/refs/heads/main/qpm.schema.json",
+  "version": "0.1.0",
+  "sharedDir": "shared",
+  "dependenciesDir": "extern",
+  "info": {
+    "name": "MetaCoreBS",
+    "id": "metacore-bs",
+    "version": "1.0.0",
+    "url": "https://github.com/Metalit/MetaCoreBS",
+    "additionalData": {
+      "overrideSoName": "libmetacore-bs.so",
+      "cmake": true
+    }
+  },
+  "workspace": {
+    "scripts": {
+      "build": [
+        "python ./extern/includes/mod-scripts/shared/build.py $0:?"
+      ],
+      "copy": [
+        "python ./extern/includes/mod-scripts/shared/cpy.py $0:?"
+      ],
+      "dbg": [
+        "python ./extern/includes/mod-scripts/shared/dbg.py $0:?"
+      ],
+      "log": [
+        "python ./extern/includes/mod-scripts/shared/log.py $0:?"
+      ],
+      "profile": [
+        "python ./extern/includes/mod-scripts/shared/profile.py $0:?"
+      ],
+      "restart": [
+        "python ./extern/includes/mod-scripts/shared/restart.py $0:?"
+      ]
+    },
+    "ndk": "^29.0.14206865",
+    "qmodIncludeDirs": [
+      "./build",
+      "./extern/libs",
+      "."
+    ],
+    "qmodIncludeFiles": [],
+    "qmodOutput": "./MetaCoreBS.qmod"
+  },
+  "dependencies": [
+    {
+      "id": "mod-scripts",
+      "versionRange": "^1.0.0",
+      "additionalData": {}
+    },
+    {
+      "id": "scotland2",
+      "versionRange": "^0.1.7",
+      "additionalData": {
+        "includeQmod": false
+      }
+    },
+    {
+      "id": "paper2_scotland2",
+      "versionRange": "^4.7.0",
+      "additionalData": {}
+    },
+    {
+      "id": "flamingo",
+      "versionRange": "^1.1.2",
+      "additionalData": {}
+    },
+    {
+      "id": "beatsaber-hook",
+      "versionRange": "^8.0.0",
+      "additionalData": {}
+    },
+    {
+      "id": "bs-cordl",
+      "versionRange": "^4203.0.0",
+      "additionalData": {}
+    },
+    {
+      "id": "custom-types",
+      "versionRange": "^0.20.0",
+      "additionalData": {
+        "private": true
+      }
+    },
+    {
+      "id": "metacore",
+      "versionRange": "^2.0.0",
+      "additionalData": {}
+    },
+    {
+      "id": "song-details",
+      "versionRange": "^1.0.4",
+      "additionalData": {
+        "private": true
+      }
+    },
+    {
+      "id": "web-utils",
+      "versionRange": "^0.6.8",
+      "additionalData": {
+        "private": true
+      }
+    },
+    {
+      "id": "rapidjson-macros",
+      "versionRange": "^3.0.1",
+      "additionalData": {}
+    }
+  ]
+}

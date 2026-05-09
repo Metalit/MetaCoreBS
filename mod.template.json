@@ -1,0 +1,15 @@
+{
+  "_QPVersion": "0.1.1",
+  "name": "${mod_name}",
+  "id": "${mod_id}",
+  "version": "${version}",
+  "author": "Metalit",
+  "packageId": "com.beatgames.beatsaber",
+  "packageVersion": "1.42.3_15380",
+  "description": "Beat Saber-specific utilities for mod developers",
+  "dependencies": [],
+  "modFiles": ["${binary}"],
+  "lateModFiles": [],
+  "libraryFiles": [],
+  "fileCopies": []
+}
