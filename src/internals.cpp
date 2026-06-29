@@ -56,8 +56,7 @@ static std::pair<int, int> GetNoteCount(BeatmapCallbacksUpdater* updater, bool l
         return {0, 0};
     }
 
-    auto noteDataItemsList =
-        (LinkedList*) data->_beatmapDataItemsPerTypeAndId->GetList(reinterpret_cast<System::Type*>(i2c::cs_type_of<NoteData*>()), 0)->items;
+    auto noteDataItemsList = (LinkedList*) data->_beatmapDataItemsPerTypeAndId->GetList(i2c::cs_type_of<NoteData*>(), 0)->items;
     auto enumerator = noteDataItemsList->GetEnumerator();
     while (enumerator.MoveNext()) {
         auto noteData = (NoteData*) enumerator.Current;
