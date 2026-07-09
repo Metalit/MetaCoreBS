@@ -35,8 +35,8 @@ jobs:
 
           publish: late
           publish_token: ${{ secrets.QPM_KEY }}
-          version: ${{ github.event.inputs.version }}
-          tag: v${{ github.event.inputs.version }}
+          version: ${{ github.event.inputs.release_ver }}
+          tag: v${{ github.event.inputs.release_ver }}
 
           qpm_release_bin: true
           qpm_debug_bin: false
@@ -51,16 +51,15 @@ jobs:
       - name: Get Output Names
         id: names
         run: |
-          qmod_files=( "*.qmod" )
-          echo "QMOD=${qmod_files[0]}" >> ${GITHUB_OUTPUT}
-
+          pattern="*.qmod"
+          files=( $pattern )
+          echo QMOD="${files[0]}" >> $GITHUB_OUTPUT
           cd build
-
-          lib_files=( "lib${module_id}*.so" )
-          echo "LIB=${lib_files[0]}" >> ${GITHUB_OUTPUT}
-
+          pattern="lib${module_id}*.so"
+          files=( $pattern )
+          echo LIB="${files[0]}" >> $GITHUB_OUTPUT
           cd debug
-          mv ${lib_files[0]} debug_${lib_files[0]}
+          mv ${files[0]} debug_${files[0]}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
