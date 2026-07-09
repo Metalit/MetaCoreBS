@@ -7,6 +7,7 @@
 #include "custom-types/shared/delegate.hpp"
 #include "metacore/shared/maps.hpp"
 #include "metacore/shared/unity.hpp"
+#include "reflectcpp/include/rfl/json.hpp"
 #include "song-details/shared/SongDetails.hpp"
 #include "web-utils/shared/WebUtils.hpp"
 
@@ -170,7 +171,7 @@ static inline float Inflate(float pp) {
 
 bool PP::IsRanked(PP::BLSongDiff const& map) {
     // https://github.com/BeatLeader/beatleader-qmod/blob/b5b7dc811f6b39f52451d2dad9ebb70f3ad4ad57/src/UI/LevelInfoUI.cpp#L78
-    return map.Stars > 0 && map.RankedStatus == 3;
+    return map.stars > 0 && map.rankedStatus.get() == 3;
 }
 
 bool PP::IsRanked(PP::SSSongDiff const& map) {
@@ -180,27 +181,27 @@ bool PP::IsRanked(PP::SSSongDiff const& map) {
 float PP::Calculate(PP::BLSongDiff const& map, float percentage, GameplayModifiers* modifiers, bool failed) {
     if (failed)
         return 0;
-    float passRating = map.Pass;
-    float accRating = map.Acc;
-    float techRating = map.Tech;
+    float passRating = map.passRating;
+    float accRating = map.accRating;
+    float techRating = map.techRating;
 
-    bool const precalculatedSpeeds = map.ModifierRatings.has_value();
+    bool const precalculatedSpeeds = map.modifiersRating.has_value();
     if (precalculatedSpeeds) {
         switch (modifiers->_songSpeed) {
             case GameplayModifiers::SongSpeed::Slower:
-                passRating = map.ModifierRatings->ssPassRating;
-                accRating = map.ModifierRatings->ssAccRating;
-                techRating = map.ModifierRatings->ssTechRating;
+                passRating = map.modifiersRating->ssPassRating;
+                accRating = map.modifiersRating->ssAccRating;
+                techRating = map.modifiersRating->ssTechRating;
                 break;
             case GameplayModifiers::SongSpeed::Faster:
-                passRating = map.ModifierRatings->fsPassRating;
-                accRating = map.ModifierRatings->fsAccRating;
-                techRating = map.ModifierRatings->fsTechRating;
+                passRating = map.modifiersRating->fsPassRating;
+                accRating = map.modifiersRating->fsAccRating;
+                techRating = map.modifiersRating->fsTechRating;
                 break;
             case GameplayModifiers::SongSpeed::SuperFast:
-                passRating = map.ModifierRatings->sfPassRating;
-                accRating = map.ModifierRatings->sfAccRating;
-                techRating = map.ModifierRatings->sfTechRating;
+                passRating = map.modifiersRating->sfPassRating;
+                accRating = map.modifiersRating->sfAccRating;
+                techRating = map.modifiersRating->sfTechRating;
                 break;
             default:
                 break;
@@ -210,8 +211,8 @@ float PP::Calculate(PP::BLSongDiff const& map, float percentage, GameplayModifie
     float multiplier = 1;
     auto const mods = GetModStringsBL(modifiers, !precalculatedSpeeds, failed);
     for (auto& mod : mods) {
-        auto value = map.ModifierValues.find(mod);
-        if (value != map.ModifierValues.end())
+        auto value = map.modifierValues.find(mod);
+        if (value != map.modifierValues.end())
             multiplier += value->second;
     }
     passRating *= multiplier;
@@ -238,16 +239,16 @@ static void ProcessResponseBL(PP::BLSong song, BeatmapKey map) {
     std::string const difficulty = BeatmapDifficultySerializedMethods::SerializedName(map.difficulty);
     std::string const name = map.SerializedName();
 
-    for (auto const& diff : song.Difficulties) {
-        if (diff.Characteristic == characteristic && diff.Difficulty == difficulty) {
-            logger.debug("found correct difficulty, {:.2f} stars", diff.Stars);
+    for (auto const& diff : song.difficulties) {
+        if (diff.characteristic.get() == characteristic && diff.difficulty.get() == difficulty) {
+            logger.debug("found correct difficulty, {:.2f} stars", diff.stars);
             if (requests[name].AddBl(std::move(diff)))
                 requests.erase(name);
             return;
         }
     }
     logger.debug("failed to find characteristic {} and difficulty {} in response", characteristic, difficulty);
-    logger.debug("{}", WriteToString(song));
+    logger.debug("{}", rfl::json::write(song));
     if (requests[name].AddBl(std::nullopt))
         requests.erase(name);
 }
@@ -268,15 +269,13 @@ static void GetMapInfoBL(BeatmapKey map, std::string hash) {
             return;
         }
         logger.debug("got bl respose");
-        PP::BLSong song;
-        try {
-            ReadFromString(*response.responseData, song);
-            Engine::ScheduleMainThread([song = std::move(song), map]() { ProcessResponseBL(std::move(song), map); });
-        } catch (std::exception const& e) {
-            logger.error("failed to parse beatleader response: {}", e.what());
+        auto song = rfl::json::read<PP::BLSong>(*response.responseData);
+        if (!song) {
+            logger.error("failed to parse beatleader response: {}", song.error().what());
             logger.debug("{}", *response.responseData);
             setNone(map);
-        }
+        } else
+            Engine::ScheduleMainThread([song = std::move(song.value()), map]() { ProcessResponseBL(std::move(song), map); });
     });
 }
 

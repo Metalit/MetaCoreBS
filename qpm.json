@@ -106,8 +106,8 @@
       }
     },
     {
-      "id": "rapidjson-macros",
-      "versionRange": "^3.0.1",
+      "id": "reflectcpp",
+      "versionRange": "^0.20.0",
       "additionalData": {}
     }
   ]
