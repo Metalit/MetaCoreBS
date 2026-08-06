@@ -12,6 +12,7 @@
 #include "custom-types/shared/coroutine.hpp"
 #include "metacore/shared/unity.hpp"
 
+#include "BeatSaber/Haptics/HapticFeedbackManager.hpp"
 #include "GlobalNamespace/AnnotatedBeatmapLevelCollectionsViewController.hpp"
 #include "GlobalNamespace/AudioTimeSyncController.hpp"
 #include "GlobalNamespace/BeatmapObjectExecutionRatingsRecorder.hpp"
@@ -31,8 +32,6 @@
 #include "GlobalNamespace/NoteController.hpp"
 #include "GlobalNamespace/NoteCutInfo.hpp"
 #include "GlobalNamespace/OVRInput.hpp"
-#include "GlobalNamespace/OculusAdvancedHapticFeedbackPlayer.hpp"
-#include "GlobalNamespace/OculusVRHelper.hpp"
 #include "GlobalNamespace/PartyFreePlayFlowCoordinator.hpp"
 #include "GlobalNamespace/PauseMenuManager.hpp"
 #include "GlobalNamespace/ScoreController.hpp"
@@ -58,11 +57,11 @@ static bool inGameplayScene = false;
 
 static std::set<int> pressedButtons;
 
-static bool IsGameplayScene(UnityW<ScenesTransitionSetupDataSO> scene) {
-    return scene && scene.try_cast<LevelScenesTransitionSetupDataSO>();
+static bool IsGameplayScene(ScenesTransitionSetupData* scene) {
+    return scene && i2c::try_cast<LevelScenesTransitionSetupData*>(scene);
 }
 
-static void CheckInitialize(UnityW<ScenesTransitionSetupDataSO> scene) {
+static void CheckInitialize(ScenesTransitionSetupData* scene) {
     if (!IsGameplayScene(scene))
         return;
     logger.debug("gameplay scene start");
@@ -387,7 +386,7 @@ MAKE_AUTO_HOOK_MATCH(
     &MenuTransitionsHelper::HandleMainGameSceneDidFinish,
     void,
     MenuTransitionsHelper* self,
-    StandardLevelScenesTransitionSetupDataSO* standardLevelScenesTransitionSetupData,
+    StandardLevelScenesTransitionSetupData* standardLevelScenesTransitionSetupData,
     LevelCompletionResults* levelCompletionResults
 ) {
     logger.info("standard level end {}", (int) levelCompletionResults->levelEndAction);
@@ -402,7 +401,7 @@ MAKE_AUTO_HOOK_MATCH(
     &MenuTransitionsHelper::HandleMissionLevelSceneDidFinish,
     void,
     MenuTransitionsHelper* self,
-    MissionLevelScenesTransitionSetupDataSO* missionLevelScenesTransitionSetupData,
+    MissionLevelScenesTransitionSetupData* missionLevelScenesTransitionSetupData,
     MissionCompletionResults* missionCompletionResults
 ) {
     logger.info("campaign level end {}", (int) missionCompletionResults->levelCompletionResults->levelEndAction);
@@ -417,7 +416,7 @@ MAKE_AUTO_HOOK_MATCH(
     &MenuTransitionsHelper::HandleMultiplayerLevelDidFinish,
     void,
     MenuTransitionsHelper* self,
-    MultiplayerLevelScenesTransitionSetupDataSO* multiplayerLevelScenesTransitionSetupData,
+    MultiplayerLevelScenesTransitionSetupData* multiplayerLevelScenesTransitionSetupData,
     MultiplayerResultsData* multiplayerResultsData
 ) {
     logger.info("multiplayer level end");
@@ -432,7 +431,7 @@ MAKE_AUTO_HOOK_MATCH(
     &MenuTransitionsHelper::HandleMultiplayerLevelDidDisconnect,
     void,
     MenuTransitionsHelper* self,
-    MultiplayerLevelScenesTransitionSetupDataSO* multiplayerLevelScenesTransitionSetupData,
+    MultiplayerLevelScenesTransitionSetupData* multiplayerLevelScenesTransitionSetupData,
     DisconnectedReason disconnectedReason
 ) {
     logger.info("multiplayer level disconnect");
@@ -680,27 +679,13 @@ MAKE_AUTO_ORIG_HOOK_MATCH(
 
 // disable haptics if requested
 MAKE_AUTO_HOOK_MATCH(
-    OculusVRHelper_TriggerHapticPulse,
-    &OculusVRHelper::TriggerHapticPulse,
+    HapticFeedbackManager_PlayHapticFeedback,
+    &BeatSaber::Haptics::HapticFeedbackManager::PlayHapticFeedback,
     void,
-    OculusVRHelper* self,
+    BeatSaber::Haptics::HapticFeedbackManager* self,
     UnityEngine::XR::XRNode node,
-    float duration,
-    float strength,
-    float frequency
+    BeatSaber::Haptics::HapticPresetSO* hapticPreset
 ) {
     if (!Input::IsHapticsDisabled())
-        OculusVRHelper_TriggerHapticPulse(self, node, duration, strength, frequency);
-}
-
-MAKE_AUTO_HOOK_MATCH(
-    OculusAdvancedHapticFeedbackPlayer_PlayHapticFeedback,
-    &OculusAdvancedHapticFeedbackPlayer::PlayHapticFeedback,
-    void,
-    OculusAdvancedHapticFeedbackPlayer* self,
-    UnityEngine::XR::XRNode node,
-    Libraries::HM::HMLib::VR::HapticPresetSO* hapticPreset
-) {
-    if (!Input::IsHapticsDisabled())
-        OculusAdvancedHapticFeedbackPlayer_PlayHapticFeedback(self, node, hapticPreset);
+        HapticFeedbackManager_PlayHapticFeedback(self, node, hapticPreset);
 }

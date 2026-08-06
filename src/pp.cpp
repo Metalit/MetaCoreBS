@@ -11,7 +11,7 @@
 #include "song-details/shared/SongDetails.hpp"
 #include "web-utils/shared/WebUtils.hpp"
 
-#include "GlobalNamespace/BeatmapCharacteristicSO.hpp"
+#include "GlobalNamespace/BeatmapCharacteristicExtensions.hpp"
 #include "GlobalNamespace/BeatmapDifficulty.hpp"
 #include "GlobalNamespace/BeatmapDifficultySerializedMethods.hpp"
 #include "System/Action_1.hpp"
@@ -235,7 +235,7 @@ float PP::Calculate(PP::SSSongDiff const& map, float percentage, GameplayModifie
 
 static void ProcessResponseBL(PP::BLSong song, BeatmapKey map) {
     logger.debug("processing bl respose");
-    std::string const characteristic = map.beatmapCharacteristic->serializedName;
+    std::string const characteristic = BeatmapCharacteristicExtensions::SerializedName(map.characteristic);
     std::string const difficulty = BeatmapDifficultySerializedMethods::SerializedName(map.difficulty);
     std::string const name = map.SerializedName();
 
@@ -296,7 +296,7 @@ static void GetSongDetails(auto&& callback) {
 }
 
 static void GetMapInfoSS(BeatmapKey map, std::string hash) {
-    std::string const characteristic = map.beatmapCharacteristic->serializedName;
+    std::string const characteristic = BeatmapCharacteristicExtensions::SerializedName(map.characteristic);
     int const difficulty = (int) map.difficulty;
     std::string const name = map.SerializedName();
 

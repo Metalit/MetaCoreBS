@@ -5,6 +5,7 @@
 #include "main.hpp"
 #include "metacore/shared/unity.hpp"
 
+#include "GlobalNamespace/BeatmapCharacteristicExtensions.hpp"
 #include "GlobalNamespace/BeatmapCharacteristicSO.hpp"
 #include "GlobalNamespace/BeatmapDataLoader.hpp"
 #include "GlobalNamespace/BeatmapLevelsModel.hpp"
@@ -44,7 +45,12 @@ std::string MetaCore::Songs::GetHash(BeatmapLevel* beatmap) {
 static std::map<std::string, std::vector<std::function<void(IReadonlyBeatmapData*)>>> dataRequests;
 
 void MetaCore::Songs::GetBeatmapData(BeatmapKey beatmap, std::function<void(IReadonlyBeatmapData*)> callback) {
-    logger.debug("loading beatmap data for {} {} {}", beatmap.levelId, beatmap.beatmapCharacteristic->_serializedName, (int) beatmap.difficulty);
+    logger.debug(
+        "loading beatmap data for {} {} {}",
+        beatmap.levelId,
+        BeatmapCharacteristicExtensions::SerializedName(beatmap.characteristic),
+        (int) beatmap.difficulty
+    );
 
     std::string name = beatmap.SerializedName();
     if (dataRequests.contains(name)) {
@@ -140,7 +146,7 @@ void MetaCore::Songs::SelectLevel(BeatmapLevel* level, BeatmapLevelPack* playlis
 
 void MetaCore::Songs::SelectLevel(BeatmapKey level, BeatmapLevelPack* playlist) {
     auto main = Game::GetMainFlowCoordinator();
-    main->_playerDataModel->playerData->SetLastSelectedBeatmapCharacteristic(level.beatmapCharacteristic);
+    main->_playerDataModel->playerData->SetLastSelectedBeatmapCharacteristic(level.characteristic);
     main->_playerDataModel->playerData->SetLastSelectedBeatmapDifficulty(level.difficulty);
     SelectLevel(FindLevel(level), playlist);
 }

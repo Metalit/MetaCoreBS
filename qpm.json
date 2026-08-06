@@ -61,7 +61,7 @@
     },
     {
       "id": "paper2_scotland2",
-      "versionRange": "^4.7.0",
+      "versionRange": "^4.8.0",
       "additionalData": {}
     },
     {
@@ -76,7 +76,7 @@
     },
     {
       "id": "bs-cordl",
-      "versionRange": "^4401.1.0",
+      "versionRange": "^4403.0.0",
       "additionalData": {}
     },
     {
@@ -88,7 +88,7 @@
     },
     {
       "id": "metacore",
-      "versionRange": "^2.0.0",
+      "versionRange": "^2.0.2",
       "additionalData": {}
     },
     {
@@ -107,7 +107,7 @@
     },
     {
       "id": "reflectcpp",
-      "versionRange": "^0.20.0",
+      "versionRange": "^0.25.0",
       "additionalData": {}
     }
   ]

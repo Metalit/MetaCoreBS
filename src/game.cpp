@@ -117,15 +117,10 @@ UnityEngine::Material* MetaCore::Game::GetCurvedCornersMaterial() {
 }
 
 MenuTransitionsHelper* MetaCore::Game::GetMenuTransitionsHelper() {
-    static UnityW<MenuTransitionsHelper> menuTransitionsHelper;
-    if (!menuTransitionsHelper) {
-        menuTransitionsHelper = UnityEngine::Resources::FindObjectsOfTypeAll<MenuTransitionsHelper*>().front_or_default();
-        if (menuTransitionsHelper)
-            Engine::SetOnDestroy(menuTransitionsHelper, []() { menuTransitionsHelper = nullptr; });
-    }
-    if (!menuTransitionsHelper)
-        logger.warn("GetMenuTransitionsHelper returning null");
-    return menuTransitionsHelper.unsafe_ptr();
+    if (auto main = GetMainFlowCoordinator())
+        return main->_menuTransitionsHelper;
+    logger.warn("GetMenuTransitionsHelper returning null");
+    return nullptr;
 }
 
 MainFlowCoordinator* MetaCore::Game::GetMainFlowCoordinator() {
