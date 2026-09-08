@@ -172,7 +172,7 @@ inline void MetaCore::UI::AddModalAnimations(HMUI::SimpleTextDropdown* dropdown,
         AnimateModal(behindModal, false);
     }));
     dropdown->_modalView->add_blockerClickedEvent(Delegates::MakeSystemAction([behindModal]() { AnimateModal(behindModal, false); }));
-    if (auto modal = i2c::try_cast<HMUI::ModalView>(dropdown->_modalView))
+    if (auto modal = i2c::try_cast<HMUI::ModalView*>(dropdown->_modalView))
         modal->_animateParentCanvas = false;
 }
 
@@ -244,7 +244,7 @@ inline HMUI::TextSegmentedControl* MetaCore::UI::CreateTextSegmentedControl(
 ) {
     static UnityW<HMUI::TextSegmentedControl> textSegmentedControlTemplate;
     if (!textSegmentedControlTemplate) {
-        textSegmentedControlTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<HMUI::TextSegmentedControl*>()->FirstOrDefault([](auto x) {
+        textSegmentedControlTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<HMUI::TextSegmentedControl*>().front_or_default([](auto x) {
             UnityEngine::Transform* parent = x->transform->parent;
             if (!parent)
                 return false;
@@ -286,7 +286,7 @@ inline HMUI::IconSegmentedControl* MetaCore::UI::CreateIconSegmentedControl(
 ) {
     static UnityW<HMUI::IconSegmentedControl> iconSegmentedControlTemplate;
     if (!iconSegmentedControlTemplate) {
-        iconSegmentedControlTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<HMUI::IconSegmentedControl*>()->FirstOrDefault([](auto x) {
+        iconSegmentedControlTemplate = UnityEngine::Resources::FindObjectsOfTypeAll<HMUI::IconSegmentedControl*>().front_or_default([](auto x) {
             if (std::string(x->name) != "BeatmapCharacteristicSegmentedControl")
                 return false;
             return x->_container != nullptr;

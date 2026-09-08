@@ -80,8 +80,7 @@ void MetaCore::Songs::GetBeatmapData(BeatmapKey beatmap, std::function<void(IRea
                 nullptr,
                 BeatmapLevelDataVersion::Original,
                 nullptr,
-                nullptr,
-                true
+                nullptr
             );
             Engine::AwaitMainThread(beatmapDataTask, [beatmapDataTask, name]() {
                 for (auto& callback : dataRequests[name])

@@ -21,8 +21,8 @@
       "copy": [
         "python ./extern/includes/mod-scripts/shared/cpy.py $0:?"
       ],
-      "dbg": [
-        "python ./extern/includes/mod-scripts/shared/dbg.py $0:?"
+      "debug": [
+        "python ./extern/includes/mod-scripts/shared/debug.py $0:?"
       ],
       "log": [
         "python ./extern/includes/mod-scripts/shared/log.py $0:?"
@@ -46,7 +46,7 @@
   "dependencies": [
     {
       "id": "mod-scripts",
-      "versionRange": "^1.0.0",
+      "versionRange": "^1.0.2",
       "additionalData": {
         "private": true
       }
@@ -66,7 +66,7 @@
     },
     {
       "id": "flamingo",
-      "versionRange": "^1.1.2",
+      "versionRange": "^1.2.1",
       "additionalData": {}
     },
     {
@@ -76,7 +76,7 @@
     },
     {
       "id": "bs-cordl",
-      "versionRange": "^4403.0.0",
+      "versionRange": "^4500.0.0",
       "additionalData": {}
     },
     {
