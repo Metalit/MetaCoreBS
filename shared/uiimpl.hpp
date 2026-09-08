@@ -67,7 +67,7 @@ inline void MetaCore::UI::SetIncrementValue(BSML::IncrementSetting* increment, f
 }
 
 inline bool MetaCore::UI::SetDropdownValue(BSML::DropdownListSetting* dropdown, std::string value) {
-    auto values = ListW<StringW>(dropdown->values);
+    auto values = ListW<StringW>(dropdown->values.convert());
     for (int i = 0; i < values.size(); i++) {
         if (values[i] == value) {
             dropdown->set_Value(dropdown->values[i]);
