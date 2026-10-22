@@ -27,6 +27,7 @@
 #include "System/Collections/Generic/LinkedList_1.hpp"
 #include "System/Collections/IEnumerator.hpp"
 #include "UnityEngine/AudioClip.hpp"
+#include "UnityEngine/AudioSource.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Time.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -76,15 +77,25 @@ static int GetMaxScore(BeatmapCallbacksUpdater* updater) {
 }
 
 static float GetSongLength(ScoreController* controller) {
-    if (!controller)
-        return 0;
-    return controller->_audioTimeSyncController->_initData->audioClip->length;
+    // Scene setup can run before the audio clip is ready, including a cancelled
+    // transition. UnityW::operator-> throws on a missing/destroyed clip.
+    auto sync = controller ? controller->_audioTimeSyncController : nullptr;
+    auto init = sync ? sync->_initData : nullptr;
+    if (init && init->audioClip) {
+        auto clip = init->audioClip;
+        auto level = MetaCore::Internals::beatmapLevel;
+        return clip->length;
+    }
+    auto level = MetaCore::Internals::beatmapLevel;
+    auto source = sync ? sync->_audioSource : nullptr;
+    auto sourceClip = source ? source->get_clip() : nullptr;
+    return level ? level->songDuration : 0.0f;
 }
 
 static float GetSongSpeed(ScoreController* controller) {
-    if (!controller)
-        return 1;
-    return controller->_audioTimeSyncController->_initData->timeScale;
+    auto sync = controller ? controller->_audioTimeSyncController : nullptr;
+    auto init = sync ? sync->_initData : nullptr;
+    return init ? init->timeScale : 1.0f;
 }
 
 static int GetFailCount(PlayerDataModel* data) {

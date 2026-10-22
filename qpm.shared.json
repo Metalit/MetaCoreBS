@@ -90,9 +90,7 @@
       {
         "id": "metacore",
         "versionRange": "^2.0.6",
-        "additionalData": {
-          "includeQmod": false
-        }
+        "additionalData": {}
       },
       {
         "id": "song-details",
