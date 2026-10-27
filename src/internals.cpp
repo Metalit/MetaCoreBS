@@ -27,6 +27,7 @@
 #include "System/Collections/Generic/LinkedList_1.hpp"
 #include "System/Collections/IEnumerator.hpp"
 #include "UnityEngine/AudioClip.hpp"
+#include "UnityEngine/AudioSource.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Time.hpp"
 #include "UnityEngine/Transform.hpp"
@@ -76,15 +77,19 @@ static int GetMaxScore(BeatmapCallbacksUpdater* updater) {
 }
 
 static float GetSongLength(ScoreController* controller) {
-    if (!controller)
-        return 0;
-    return controller->_audioTimeSyncController->_initData->audioClip->length;
+    auto sync = controller ? controller->_audioTimeSyncController : nullptr;
+    auto init = sync ? sync->_initData : nullptr;
+    if (auto clip = init ? init->audioClip : nullptr) {
+        return clip->length;
+    }
+    auto level = MetaCore::Internals::beatmapLevel;
+    return level ? level->songDuration : 0;
 }
 
 static float GetSongSpeed(ScoreController* controller) {
-    if (!controller)
-        return 1;
-    return controller->_audioTimeSyncController->_initData->timeScale;
+    auto sync = controller ? controller->_audioTimeSyncController : nullptr;
+    auto init = sync ? sync->_initData : nullptr;
+    return init ? init->timeScale : 1;
 }
 
 static int GetFailCount(PlayerDataModel* data) {
