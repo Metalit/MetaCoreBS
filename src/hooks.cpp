@@ -57,12 +57,9 @@ static bool inGameplayScene = false;
 
 static std::set<int> pressedButtons;
 
-static bool IsGameplayScene(ScenesTransitionSetupData* scene) {
-    return scene && i2c::try_cast<LevelScenesTransitionSetupData*>(scene);
-}
-
 static void CheckInitialize(ScenesTransitionSetupData* scene) {
-    if (!IsGameplayScene(scene))
+    Internals::UpdateGameplayMode(scene);
+    if (Game::GetGameplayMode() == Game::GameplayMode::None)
         return;
     logger.debug("gameplay scene start");
     Internals::Initialize();
@@ -84,8 +81,9 @@ static void CheckSceneFinish() {
     if (!inGameplayScene)
         return;
     logger.debug("gameplay scene finish");
-    Events::Broadcast(Events::GameplaySceneEnded);
+    Internals::UpdateGameplayMode(nullptr);
     inGameplayScene = false;
+    Events::Broadcast(Events::GameplaySceneEnded);
 }
 
 // update score and max score

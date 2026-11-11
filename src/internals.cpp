@@ -1,6 +1,7 @@
 #include "internals.hpp"
 
 #include "events.hpp"
+#include "game.hpp"
 #include "main.hpp"
 #include "stats.hpp"
 #include "types.hpp"
@@ -17,12 +18,16 @@
 #include "GlobalNamespace/GameplayModifiersModelSO.hpp"
 #include "GlobalNamespace/IGameEnergyCounter.hpp"
 #include "GlobalNamespace/ISortedList_1.hpp"
+#include "GlobalNamespace/LevelScenesTransitionSetupData.hpp"
+#include "GlobalNamespace/MissionLevelScenesTransitionSetupData.hpp"
+#include "GlobalNamespace/MultiplayerLevelScenesTransitionSetupData.hpp"
 #include "GlobalNamespace/PlayerAllOverallStatsData.hpp"
 #include "GlobalNamespace/PlayerData.hpp"
 #include "GlobalNamespace/PlayerDataModel.hpp"
 #include "GlobalNamespace/PlayerLevelStatsData.hpp"
 #include "GlobalNamespace/Saber.hpp"
 #include "GlobalNamespace/ScoreModel.hpp"
+#include "GlobalNamespace/StandardLevelScenesTransitionSetupData.hpp"
 #include "System/Collections/Generic/Dictionary_2.hpp"
 #include "System/Collections/Generic/LinkedList_1.hpp"
 #include "System/Collections/IEnumerator.hpp"
@@ -38,6 +43,15 @@ using namespace UnityEngine;
 
 static std::string lastBeatmap;
 static float timeSinceSlowUpdate;
+
+static Game::GameplayMode ClassifyGameplayMode(ScenesTransitionSetupData* scene) {
+    using Mode = Game::GameplayMode;
+    if (!scene || !i2c::try_cast<LevelScenesTransitionSetupData*>(scene)) return Mode::None;
+    if (i2c::try_cast<MultiplayerLevelScenesTransitionSetupData*>(scene)) return Mode::Multiplayer;
+    if (i2c::try_cast<MissionLevelScenesTransitionSetupData*>(scene)) return Mode::Campaign;
+    if (i2c::try_cast<StandardLevelScenesTransitionSetupData*>(scene)) return Mode::Standard;
+    return Mode::Unknown;
+}
 
 static std::pair<int, int> GetNoteCount(BeatmapCallbacksUpdater* updater, bool left) {
     using LinkedList = System::Collections::Generic::LinkedList_1<NoteData*>;
@@ -230,6 +244,11 @@ bool Internals::stateValid = false;
 bool Internals::referencesValid = false;
 bool Internals::mapWasQuit = false;
 bool Internals::mapWasRestarted = false;
+Game::GameplayMode Internals::gameplayMode = Game::GameplayMode::None;
+
+void Internals::UpdateGameplayMode(ScenesTransitionSetupData* scene) {
+    gameplayMode = ClassifyGameplayMode(scene);
+}
 
 void Internals::Initialize() {
     auto beatmapCallbacksUpdater = Object::FindObjectOfType<BeatmapCallbacksUpdater*>(true);

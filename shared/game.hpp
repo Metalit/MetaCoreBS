@@ -16,6 +16,19 @@
 #include "Zenject/DiContainer.hpp"
 
 namespace MetaCore::Game {
+    enum class GameplayMode {
+        None,       // No gameplay scene.
+        Standard,   // Solo and Party.
+        Campaign,
+        Multiplayer,
+        Unknown,      // An unrecognized LevelScenesTransitionSetupData subclass.
+    };
+
+    /// @brief Current level mode, set before GameplaySceneStarted. Retained through
+    /// MapEnded/MapRestarted and cleared before GameplaySceneEnded.
+    /// Read on the main thread, like the gameplay event API.
+    METACORE_EXPORT GameplayMode GetGameplayMode();
+
     /// @brief Enables or disables score submission for a mod. Score submission will only be enabled if no mods have it disabled
     /// @param mod The unique id of the mod modifying score submission
     /// @param enable If score submission should be enabled for this mod

@@ -20,6 +20,14 @@
 
 // no per-variable documentation here, sorry
 
+namespace GlobalNamespace {
+    class ScenesTransitionSetupData;
+}
+
+namespace MetaCore::Game {
+    enum class GameplayMode;
+}
+
 namespace MetaCore::Internals {
     METACORE_EXPORT extern int leftScore;
     METACORE_EXPORT extern int rightScore;
@@ -98,7 +106,9 @@ namespace MetaCore::Internals {
     METACORE_EXPORT extern bool referencesValid;
     METACORE_EXPORT extern bool mapWasQuit;
     METACORE_EXPORT extern bool mapWasRestarted;
+    METACORE_EXPORT extern Game::GameplayMode gameplayMode;
 
+    METACORE_EXPORT void UpdateGameplayMode(GlobalNamespace::ScenesTransitionSetupData* scene);
     METACORE_EXPORT void Initialize();
     METACORE_EXPORT void DoSlowUpdate();
     METACORE_EXPORT void Finish(bool quit, bool restart);

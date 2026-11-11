@@ -1,6 +1,7 @@
 #include "game.hpp"
 
 #include "events.hpp"
+#include "internals.hpp"
 #include "main.hpp"
 #include "types.hpp"
 #include "metacore/shared/unity.hpp"
@@ -18,6 +19,10 @@
 #include "Zenject/SceneContextRegistry.hpp"
 
 using namespace GlobalNamespace;
+
+MetaCore::Game::GameplayMode MetaCore::Game::GetGameplayMode() {
+    return Internals::gameplayMode;
+}
 
 static std::set<std::string> scoreDisablers;
 
