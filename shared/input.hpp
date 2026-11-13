@@ -34,6 +34,7 @@ namespace MetaCore::Input {
         GripStrength,
         // The amount the trigger on the front of the controller is pressed
         TriggerStrength,
+        AxesMax = TriggerStrength,
     };
 
     enum Controllers {
@@ -45,6 +46,7 @@ namespace MetaCore::Input {
         Active,
         // Either controller
         Either,
+        ControllersMax = Either,
     };
 
     /// @brief Gets if a button is currently pressed for a given controller
@@ -63,11 +65,16 @@ namespace MetaCore::Input {
     METACORE_EXPORT UnityEngine::Vector2 GetThumbstick(Controllers controller);
 
     /// @brief The string identifier that maps the Buttons enum to events run when they are pressed, when used in the "mod" parameter
-    std::string const PressEvents = "MetaCoreButtonPresses";
+    constexpr std::string PressEvents = "MetaCoreButtonPresses";
     /// @brief The string identifier that maps the Buttons enum to events run when they are released, when used in the "mod" parameter
-    std::string const ReleaseEvents = "MetaCoreButtonReleases";
+    constexpr std::string ReleaseEvents = "MetaCoreButtonReleases";
     /// @brief The string identifier that maps the Buttons enum to events run every frame they are held, when used in the "mod" parameter
-    std::string const HoldEvents = "MetaCoreButtonHolds";
+    constexpr std::string HoldEvents = "MetaCoreButtonHolds";
+
+    /// @brief Converts the above event strings into controller-specific events, instead of triggering for either controller
+    constexpr std::string ForController(std::string const& baseEvent, Controllers controller) {
+        return controller == Either ? baseEvent : fmt::format("{}_C{}", baseEvent, static_cast<int>(controller));
+    }
 
     /// @brief Gets the current position and rotation of a controller
     /// @param left If the left controller should be returned, otherwise the right controller

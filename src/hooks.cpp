@@ -31,7 +31,6 @@
 #include "GlobalNamespace/MultiplayerLocalActivePlayerInGameMenuController.hpp"
 #include "GlobalNamespace/NoteController.hpp"
 #include "GlobalNamespace/NoteCutInfo.hpp"
-#include "GlobalNamespace/OVRInput.hpp"
 #include "GlobalNamespace/PartyFreePlayFlowCoordinator.hpp"
 #include "GlobalNamespace/PauseMenuManager.hpp"
 #include "GlobalNamespace/ScoreController.hpp"
@@ -48,14 +47,11 @@
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Time.hpp"
 #include "UnityEngine/WaitForSeconds.hpp"
-#include "VRUIControls/VRGraphicRaycaster.hpp"
 
 using namespace GlobalNamespace;
 using namespace MetaCore;
 
 static bool inGameplayScene = false;
-
-static std::set<int> pressedButtons;
 
 static void CheckInitialize(ScenesTransitionSetupData* scene) {
     Internals::UpdateGameplayMode(scene);
@@ -133,7 +129,7 @@ MAKE_AUTO_HOOK_MATCH(
     void,
     BeatmapObjectManager* self,
     NoteController* noteController,
-    by_ref<const NoteCutInfo> info
+    by_ref<NoteCutInfo const> info
 ) {
     BeatmapObjectManager_HandleNoteControllerNoteWasCut(self, noteController, info);
 
@@ -253,7 +249,7 @@ MAKE_AUTO_HOOK_MATCH(
     HandleCutFinish(self);
 }
 
-MAKE_AUTO_HOOK_MATCH(CutScoreBuffer_Init, &CutScoreBuffer::Init, bool, CutScoreBuffer* self, by_ref<const NoteCutInfo> noteCutInfo) {
+MAKE_AUTO_HOOK_MATCH(CutScoreBuffer_Init, &CutScoreBuffer::Init, bool, CutScoreBuffer* self, by_ref<NoteCutInfo const> noteCutInfo) {
     bool notYetFinished = CutScoreBuffer_Init(self, noteCutInfo);
     if (!notYetFinished)
         HandleCutFinish(self);
@@ -483,7 +479,7 @@ MAKE_AUTO_HOOK_MATCH(
     LevelCompletionResultsHelper_ProcessScore,
     &LevelCompletionResultsHelper::ProcessScore,
     void,
-    by_ref<const BeatmapKey> beatmapKey,
+    by_ref<BeatmapKey const> beatmapKey,
     PlayerData* playerData,
     PlayerLevelStatsData* playerLevelStats,
     LevelCompletionResults* levelCompletionResults,
@@ -570,26 +566,6 @@ MAKE_AUTO_HOOK_MATCH(
     AnnotatedBeatmapLevelCollectionsViewController_SetData(self, packs, selectedItemIndex, hideIfOneOrNoPacks);
 
     AddSignalUpdates(self, Internals::ClearPlaylist, [pack = packs->get_Item(selectedItemIndex)]() { Internals::SetPlaylist(pack); });
-}
-
-// run input button events
-MAKE_AUTO_HOOK_MATCH(OVRInput_Update, &OVRInput::Update, void) {
-    OVRInput_Update();
-
-    for (int i = 0; i <= Input::ButtonsMax; i++) {
-        bool pressed = Input::GetPressed(Input::Either, (Input::Buttons) i);
-        bool wasPressed = pressedButtons.contains(i);
-        if (pressed && !wasPressed) {
-            Events::Broadcast(Input::PressEvents, i);
-            pressedButtons.emplace(i);
-        }
-        if (pressed)
-            Events::Broadcast(Input::HoldEvents, i);
-        if (!pressed && wasPressed) {
-            Events::Broadcast(Input::ReleaseEvents, i);
-            pressedButtons.erase(i);
-        }
-    }
 }
 
 // run keyboard closed callbacks
